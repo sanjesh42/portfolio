@@ -6,11 +6,12 @@ const GlowCard = ({ children, identifier }) => {
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    setIsMounted(true); // Ensures this runs only on the client side
+    if (typeof window === "undefined") return; // Prevents execution on server
+    setIsMounted(true);
   }, []);
 
   useEffect(() => {
-    if (typeof window === "undefined") return; // Ensure window is defined
+    if (!isMounted) return; // Ensures it only runs after mounting
 
     const CONTAINER = document.querySelector(`.glow-container-${identifier}`);
     const CARDS = document.querySelectorAll(`.glow-card-${identifier}`);
@@ -27,7 +28,7 @@ const GlowCard = ({ children, identifier }) => {
     };
 
     const UPDATE = (event) => {
-      for (const CARD of CARDS) {
+      CARDS.forEach((CARD) => {
         const CARD_BOUNDS = CARD.getBoundingClientRect();
 
         if (
@@ -54,7 +55,7 @@ const GlowCard = ({ children, identifier }) => {
         ANGLE = ANGLE < 0 ? ANGLE + 360 : ANGLE;
 
         CARD.style.setProperty("--start", ANGLE + 90);
-      }
+      });
     };
 
     document.body.addEventListener("pointermove", UPDATE);
@@ -77,7 +78,7 @@ const GlowCard = ({ children, identifier }) => {
     };
   }, [isMounted, identifier]);
 
-  if (!isMounted) return null; // Prevent rendering on the server
+  if (!isMounted) return null; // Prevents rendering on the server
 
   return (
     <div className={`glow-container-${identifier} glow-container`}>

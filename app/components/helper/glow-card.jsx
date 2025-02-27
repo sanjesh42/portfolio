@@ -4,9 +4,12 @@ import { useEffect } from 'react';
 
 const GlowCard = ({ children , identifier}) => {
   useEffect(() => {
-    if (typeof document !== "undefined") {
+    if (typeof document !== "undefined" && identifier) {
     const CONTAINER = document.querySelector(`.glow-container-${identifier}`);
     const CARDS = document.querySelectorAll(`.glow-card-${identifier}`);
+
+    if (!CONTAINER || CARDS.length === 0) return; // Prevent errors
+
 
     const CONFIG = {
       proximity: 40,
@@ -20,6 +23,7 @@ const GlowCard = ({ children , identifier}) => {
     const UPDATE = (event) => {
       for (const CARD of CARDS) {
         const CARD_BOUNDS = CARD.getBoundingClientRect();
+        if (!CARD_BOUNDS) return;
 
         if (
           event?.x > CARD_BOUNDS.left - CONFIG.proximity &&
@@ -51,6 +55,7 @@ const GlowCard = ({ children , identifier}) => {
     document.body.addEventListener('pointermove', UPDATE);
 
     const RESTYLE = () => {
+      if (!CONTAINER) return;
       CONTAINER.style.setProperty('--gap', CONFIG.gap);
       CONTAINER.style.setProperty('--blur', CONFIG.blur);
       CONTAINER.style.setProperty('--spread', CONFIG.spread);
